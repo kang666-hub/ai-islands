@@ -1,0 +1,7 @@
+fonts-src/
+_preview/
+.DS_Store
+*.bak-*
+logs/
+.claude/
+__pycache__/

@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "1.0",
+  "updatedAt": null,
+  "islands": [
+    {
+      "id": "brand", "no": "00", "q": 0, "r": 0,
+      "name": {"zh": "KANG 品牌島", "en": "KANG Brand Island"},
+      "summary": {"zh": "個人品牌的門面：網站作品與社群經營。", "en": "The front door: websites and social channels."},
+      "stats": [
+        {"key": "works", "label": {"zh": "網站作品", "en": "Sites"}, "value": null},
+        {"key": "ig_views_30d", "label": {"zh": "IG 30 天瀏覽", "en": "IG views (30d)"}, "value": null},
+        {"key": "site_version", "label": {"zh": "網站版本", "en": "Site version"}, "value": "v0.3", "fixed": true}
+      ],
+      "visual": {}
+    },
+    {
+      "id": "ai", "no": "01", "q": 1, "r": -1,
+      "name": {"zh": "AI 工坊", "en": "AI Workshop"},
+      "summary": {"zh": "Claude Code 派工給 Codex、agy 平行處理。", "en": "Claude Code dispatches work to Codex and agy in parallel."},
+      "stats": [
+        {"key": "running_sessions", "label": {"zh": "執行中", "en": "Running"}, "value": null},
+        {"key": "sessions_total", "label": {"zh": "工作階段", "en": "Sessions"}, "value": null},
+        {"key": "jobs_total", "label": {"zh": "派工件數", "en": "Jobs"}, "value": null}
+      ],
+      "visual": {"running_sessions": null}
+    },
+    {
+      "id": "port", "no": "02", "q": 1, "r": 0,
+      "name": {"zh": "Discord 港", "en": "Discord Port"},
+      "summary": {"zh": "收件、派令與回報的進出港口。", "en": "Where requests arrive and reports ship out."},
+      "stats": [
+        {"key": "new_inbox", "label": {"zh": "24 小時收件", "en": "Inbox (24h)"}, "value": null},
+        {"key": "inbox_failed", "label": {"zh": "失敗", "en": "Failed"}, "value": null},
+        {"key": "commands", "label": {"zh": "指令", "en": "Commands"}, "value": 2, "fixed": true}
+      ],
+      "visual": {"new_inbox": null}
+    },
+    {
+      "id": "lib", "no": "03", "q": 0, "r": 1,
+      "name": {"zh": "AI 資產庫", "en": "AI Library"},
+      "summary": {"zh": "筆記、wiki 與原始資料的知識倉庫。", "en": "Notes, wiki entries and raw sources."},
+      "stats": [
+        {"key": "notes", "label": {"zh": "筆記", "en": "Notes"}, "value": null},
+        {"key": "wiki", "label": {"zh": "wiki 條目", "en": "Wiki entries"}, "value": null},
+        {"key": "raw", "label": {"zh": "原始資料", "en": "Raw sources"}, "value": null}
+      ],
+      "visual": {}
+    },
+    {
+      "id": "box", "no": "04", "q": -1, "r": 1,
+      "name": {"zh": "拳擊擂台島", "en": "Boxing Ring"},
+      "summary": {"zh": "拳擊錄影分析：出拳次數與速度。", "en": "Boxing video analysis: punch count and speed."},
+      "stats": [
+        {"key": "punches_30d", "label": {"zh": "30 天出拳", "en": "Punches (30d)"}, "value": null, "nullText": "—"},
+        {"key": "speed_p50", "label": {"zh": "速度中位數", "en": "Median speed"}, "value": null, "nullText": "—"},
+        {"key": "ppm", "label": {"zh": "每分鐘出拳", "en": "Punches / min"}, "value": null, "nullText": "—"}
+      ],
+      "visual": {"sessions_total": null}
+    },
+    {
+      "id": "fpv", "no": "05", "q": -1, "r": 0,
+      "name": {"zh": "FPV 飛行島", "en": "FPV Island"},
+      "summary": {"zh": "穿越機飛行、精華剪輯與訓練平台。", "en": "FPV flying, highlight edits and training."},
+      "stats": [
+        {"key": "highlights", "label": {"zh": "精華影片", "en": "Highlights"}, "value": null},
+        {"key": "trainer_commits", "label": {"zh": "訓練平台 commits", "en": "Trainer commits"}, "value": null},
+        {"key": "autocut_version", "label": {"zh": "自動剪輯", "en": "Auto-cut"}, "value": "v0.2", "fixed": true}
+      ],
+      "visual": {}
+    },
+    {
+      "id": "bridge", "no": "06", "q": 0, "r": -1,
+      "name": {"zh": "橋梁查驗島", "en": "Bridge Inspection"},
+      "summary": {"zh": "工地查驗表數位化，目前只公開開發進度。", "en": "Digital inspection forms — progress only."},
+      "stats": [
+        {"key": "progress", "label": {"zh": "開發進度", "en": "Progress"}, "value": null, "format": "percent"}
+      ],
+      "visual": {"progress": null, "commits": null}
+    }
+  ],
+  "people": [
+    {"role": "kang", "island": "brand", "count": 1},
+    {"role": "agent-claude", "island": "ai", "count": 3},
+    {"role": "agent-codex", "island": "ai", "count": 3},
+    {"role": "agent-agy", "island": "ai", "count": 3},
+    {"role": "pilot", "island": "fpv", "count": 4},
+    {"role": "boxer", "island": "box", "count": 4},
+    {"role": "engineer", "island": "bridge", "count": 4},
+    {"role": "postman", "island": "port", "count": 3},
+    {"role": "resident", "island": "brand", "count": 5}
+  ],
+  "flows": [
+    {"from": "port", "to": "lib", "label": {"zh": "收件 → 摘要入庫", "en": "Inbox → summarized into library"}},
+    {"from": "ai", "to": "port", "label": {"zh": "派工結果 → 回報", "en": "Job results → report"}}
+  ]
+}

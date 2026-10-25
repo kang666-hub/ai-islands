@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>康總的Ai群島</title>
+  <link rel="icon" href="data:,">
+  <link rel="preload" href="./fonts/NotoSansTC-900.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="./fonts/NotoSansTC-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./style.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.min.js",
+      "three/addons/": "./vendor/addons/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="stage"></div>
+  <header class="brand">
+    <h1>康總的Ai群島</h1>
+    <p><span class="num">7</span> 座島・每小時更新</p>
+  </header>
+  <div id="error" class="error" hidden></div>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
