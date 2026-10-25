@@ -127,3 +127,33 @@ python3 scripts/export_islands.py --inject-test-string    # 自檢測試：應�
 - `bridge_progress`：0～1 的數字（0.67 = 67%）。
 - `ig_views_30d`：整數。
 - 必須是數字；寫成字串會讓該欄變 `null`。改完跑匯出（或等下一次排程）即可。
+
+## 每小時自動更新（launchd）
+- 排程：`~/Library/LaunchAgents/com.kang.ai-islands.plist`，每小時 **:07** 跑 `scripts/publish.sh`，載入時不自動執行（`RunAtLoad` 關閉）。
+- `publish.sh` 流程：
+  1. 上次 push 失敗留下的 commit 先補推。
+  2. 跑 `export_islands.py`。
+  3. 排除 `updatedAt` 後和 HEAD 比對。數字沒變就還原檔案、不 commit。
+  4. 有變動才 `git commit -m "data: YYYY-MM-DD HH:MM"` 並 push。
+- 因為無變動不 commit，卡片上的「資料更新時間」是**最後一次數字有變動的時間**，不是最後一次檢查的時間。
+- **null 防護**：新 JSON 的 null 格數比上一版多，就不 commit，log 記 `WARN`，exit 1。這是為了避免來源讀不到或權限問題，把公開網站上的數字洗成「—」。
+- 失敗時還原 `data/islands.json` 並 exit 1。push 失敗（例如網路斷線）屬於正常狀況，完整的 commit 會保留，下一小時補推。連續失敗 6 次以上，log 標 `WARN`。
+
+### log
+- `logs/publish-YYYY-MM-DD.log`：按日期分檔，每次執行都有「開始」和 OK／FAIL／WARN 一行，匯出的 stderr 也寫在這裡。
+- `logs/launchd.log`：launchd 本身的輸出，正常是空的。
+- `logs/.fail_count`：連續失敗次數，成功後歸 0。
+- 舊 log **不會自動刪**，可以自行手動清理，只留最近 30 天即可。`logs/` 已列入 `.gitignore`。
+
+### 常用指令
+```
+launchctl list | grep ai-islands                                   # 是否已載入（第二欄 = 上次結束碼）
+launchctl kickstart gui/$(id -u)/com.kang.ai-islands               # 立刻跑一次
+bash scripts/publish.sh                                            # 不透過 launchd，手動跑一次
+launchctl bootout gui/$(id -u)/com.kang.ai-islands                 # 停止排程（plist 留著）
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.kang.ai-islands.plist   # 重新載入
+```
+
+### 常見狀況
+- **AI資產庫、拳擊、網站作品、FPV 訓練平台突然變「—」，log 出現 WARN null 格數增加**：多半是 macOS 隱私權限擋下 launchd 讀 `~/Documents`。到「系統設定 → 隱私權與安全性 → 完整磁碟取用權限」允許 `/opt/homebrew/bin/python3` 和 `/bin/bash`。必須由本人操作。
+- **連續 WARN push 失敗**：檢查網路，以及 `git -C ~/Projects/ai-islands push` 能不能手動推，認證用 macOS 鑰匙圈。
