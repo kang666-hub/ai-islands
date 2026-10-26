@@ -250,6 +250,8 @@ async function init() {
   });
 
   const clock = new THREE.Clock();
+  const droneObj = scene.getObjectByName('fpv-drone');
+  const _dronePos = new THREE.Vector3();
   renderer.setAnimationLoop(() => {
     const dt = clock.getDelta();
     const t = clock.getElapsedTime();
@@ -275,6 +277,7 @@ async function init() {
       controls.update();
     }
     ui.update(t);
+    if (droneObj) ui.audio.tick({ droneDist: droneObj.getWorldPosition(_dronePos).distanceTo(camera.position) });
     renderer.render(scene, camera);
   });
 }

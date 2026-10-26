@@ -1,5 +1,6 @@
 // UI：島名標籤（HTML 疊在 3D 上）、資訊卡、全景鈕、首次提示、點擊聚焦、流動線
 import * as THREE from 'three';
+import { createAudio } from './audio.js';
 import { Line2 } from 'three/addons/lines/Line2.js';
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
@@ -52,7 +53,24 @@ export function buildUI({ world, data, camera, renderer, scene, reducedMotion, o
   const overviewBtn = el('button', 'overview-btn', root, '全景');
   overviewBtn.type = 'button';
   overviewBtn.hidden = true;
-  overviewBtn.addEventListener('click', () => overview());
+  overviewBtn.addEventListener('click', () => { audio.sfx('overview'); overview(); });
+
+  // 喇叭鈕（預設靜音；聲音全部在 audio.js）
+  const audioBtn = el('button', 'audio-btn', root, '🔇');
+  audioBtn.type = 'button';
+  const syncAudioBtn = (on) => {
+    audioBtn.textContent = on ? '🔊' : '🔇';
+    audioBtn.setAttribute('aria-label', on ? '關閉聲音' : '開啟聲音');
+    audioBtn.setAttribute('aria-pressed', String(on));
+  };
+  const audio = createAudio({
+    reducedMotion,
+    getVisual: (id) => world.islands.get(id)?.info.visual || {},
+    onChange: syncAudioBtn,
+    debug: new URLSearchParams(location.search).get('debug') === '1',
+  });
+  syncAudioBtn(false);
+  audioBtn.addEventListener('click', () => audio.toggle());
 
   // 首次提示
   const hint = el('div', 'hint', root, '拖曳旋轉・點小島看數據');
@@ -175,6 +193,8 @@ export function buildUI({ world, data, camera, renderer, scene, reducedMotion, o
       l.label.classList.toggle('dim', l.id !== id);
     }
     dismissHint();
+    audio.sfx('focus');
+    audio.focus(id);
     onFocus(island, cardHeight);
   }
   function overview() {
@@ -184,6 +204,7 @@ export function buildUI({ world, data, camera, renderer, scene, reducedMotion, o
     overviewBtn.hidden = true;
     showFlows(null);
     for (const l of labels) l.label.classList.remove('active', 'dim');
+    audio.focus(null);
     onOverview();
   }
 
@@ -233,5 +254,5 @@ export function buildUI({ world, data, camera, renderer, scene, reducedMotion, o
     }
   }
 
-  return { update, focus, overview, get focused() { return focused; } };
+  return { update, focus, overview, audio, get focused() { return focused; } };
 }

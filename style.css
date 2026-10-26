@@ -71,10 +71,15 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); c
 .label.active .label-no, .label:hover .label-no { background: var(--card); color: var(--accent); }
 
 .overview-btn {
-  position: fixed; right: 16px; top: 16px; padding: 10px 16px; border: 0; border-radius: 999px; cursor: pointer;
+  position: fixed; right: 70px; top: 16px; padding: 10px 16px; border: 0; border-radius: 999px; cursor: pointer;
   background: var(--card); color: var(--text); font: 900 14px/1 var(--font); box-shadow: 0 6px 18px rgba(42, 36, 32, .16);
 }
 .overview-btn:hover { background: var(--accent); color: #fff; }
+.audio-btn {
+  position: fixed; right: 16px; top: 16px; width: 44px; height: 34px; padding: 0; border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--card); color: var(--text); font: 16px/1 var(--font); box-shadow: 0 6px 18px rgba(42, 36, 32, .16);
+}
+.audio-btn:hover { background: var(--accent); }
 
 .hint {
   position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);

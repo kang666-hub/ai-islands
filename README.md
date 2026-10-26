@@ -157,3 +157,48 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.kang.ai-islands.plis
 ### 常見狀況
 - **AI資產庫、拳擊、網站作品、FPV 訓練平台突然變「—」，log 出現 WARN null 格數增加**：多半是 macOS 隱私權限擋下 launchd 讀 `~/Documents`。到「系統設定 → 隱私權與安全性 → 完整磁碟取用權限」允許 `/opt/homebrew/bin/python3` 和 `/bin/bash`。必須由本人操作。
 - **連續 WARN push 失敗**：檢查網路，以及 `git -C ~/Projects/ai-islands push` 能不能手動推，認證用 macOS 鑰匙圈。
+
+## 聲音（`js/audio.js`）
+全部用 Web Audio 程式合成，不載入任何音檔，也沒有外部腳本。**預設靜音**，使用者點右上角 🔇 才開；開關記在 `localStorage` 的 `islands_audio`，下次來若是開的，第一次點畫面任何地方就自動開聲。
+
+內容：
+- **海浪底床**：粉紅噪音兩層錯開、低通 600～1200 Hz 隨浪起伏，全景與聚焦都有。
+- **旋律（水晶音樂）**：鐘聲音色（4 個泛音加成、±3 cents 微走音、顫音），C 大調 C5～E6，和弦 C → Am → F → G 每 2 句換一個，附根音＋五度的長音墊底；殘響 3.5 秒＋ping-pong 延遲。每 8～16 秒一句。
+- **各島環境音**：聚焦該島時淡入、離開淡出（交叉淡化 1 秒）。港口海浪加大、圖書館海浪減小。
+- **操作音效**：點島「叮」、全景下滑音、開喇叭上行三音、關喇叭低音。
+- 分頁切到背景暫停；`prefers-reduced-motion` 時只留海浪（更小聲）和操作音效。
+
+### 怎麼關
+- 使用者：點右上角 🔊。
+- 整站停用：`js/ui.js` 裡 `audioBtn.hidden = true;`（按鈕藏起來就沒有人能開），或把 `createAudio(...)` 那段拿掉並讓 `audio` 變成空物件 `{ toggle(){}, focus(){}, sfx(){}, tick(){} }`。
+
+### 怎麼調音量
+都在 `js/audio.js` 檔頭的 `CONFIG`，單位 dB（相對增益，數字越小越安靜）：
+| 常數 | 管什麼 | 目前值（實測輸出） |
+|---|---|---|
+| `OCEAN_DB` | 海浪 | -5.2（平均約 -26 dBFS） |
+| `MELODY_DB` | 旋律 | -8.2（峰值約 -12 dBFS） |
+| `PAD_DB` | 旋律墊底長音 | -32.6（平均約 -34 dBFS） |
+| `ISLAND_DB` | 各島環境音 | -10 |
+| `SFX_DB` | 操作音效 | -14 |
+| `OCEAN_FOCUS_DB` | 聚焦某島時海浪加減 | port +4、lib -6 |
+| `OCEAN_REDUCED_DELTA_DB` | reduced-motion 時海浪再降 | -8 |
+單一島的環境音大小改 `ISLANDS` 物件裡該島的 `gain`／`peak` 數值。
+
+### 怎麼改旋律
+- **音階**：`SCALE_SEMI` 是相對 C5 的半音數（目前 C 大調 `[0,2,4,5,7,9,11,12,14,16]`）。改成五聲音階就是 `[0,2,4,7,9,12,14,16]`；改調性要連 `CHORD_PC`（和弦音的 pitch class，C=0）和 `PAD_HZ`（墊底的根音＋五度，Hz）一起改。
+- **和弦進行**：`CHORD_PC` 的順序就是循環順序，`PAD_HZ` 要對應。
+- **速度與長度**：`BPM`、`PHRASE_NOTES`（每句音數）、`PHRASE_EVERY_S`（句間隔）、`NOTE_RELEASE_S`（釋音）。
+- **音色**：`BELL_PARTIALS` 每列 `[倍頻, 音量, 衰減長度比例]`；`DETUNE_CENTS`、`TREMOLO`。
+- **空間**：`REVERB_S`、`REVERB_WET`、`PREDELAY_S`、`PINGPONG_*`。
+改完重新整理即可，沒有 build。鐘聲樣本和每一句都是用 OfflineAudioContext 離線算好再播，正式播放每句只佔 1 個節點。
+
+### iOS 靜音開關
+iPhone 側邊靜音開關打開時，Safari 預設會把網頁的 Web Audio 一起靜音。`audio.js` 在使用者按下開聲時：
+- 瀏覽器有 `navigator.audioSession`（iOS 17 以後的 Safari）→ 設 `type = 'playback'`。
+- 沒有的話 → 播放一段程式產生的 0.1 秒無聲 WAV（data URI，`<audio loop playsinline>`），讓音訊類別切到「播放」。關聲或分頁切到背景時暫停它。
+
+副作用：音訊類別是「播放」時，開聲可能會讓 iPhone 上正在播的其他 App 音樂（例如 Spotify）暫停。
+
+### 除錯
+`?debug=1` 會開放 `window.__audio`（`ctx`、`master`、`buses`、`active` 節點數、`chord`、`phrases`、`playPhrase()`），切島時 console 印 `[audio] focus=<島> active=<節點數>`。

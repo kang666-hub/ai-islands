@@ -648,6 +648,7 @@ function buildFpv(info) {
 
   // 無人機
   const drone = new THREE.Group();
+  drone.name = 'fpv-drone'; // audio.tick 用：算無人機到鏡頭的距離
   drone.userData.dynamic = true;
   drone.scale.setScalar(1.6);
   const body = rbox(0.3, 0.1, 0.3, C.text, 0.03);
