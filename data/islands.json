@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-10-26T23:07:05+08:00",
+  "updatedAt": "2026-10-27T00:07:05+08:00",
   "islands": [
     {
       "id": "brand",
@@ -64,7 +64,7 @@
             "zh": "執行中",
             "en": "Running"
           },
-          "value": 4
+          "value": 6
         },
         {
           "key": "sessions_total",
@@ -72,7 +72,7 @@
             "zh": "工作階段",
             "en": "Sessions"
           },
-          "value": 86
+          "value": 87
         },
         {
           "key": "jobs_total",
@@ -84,7 +84,7 @@
         }
       ],
       "visual": {
-        "running_sessions": 4
+        "running_sessions": 6
       }
     },
     {
@@ -107,7 +107,7 @@
             "zh": "24 小時收件",
             "en": "Inbox (24h)"
           },
-          "value": 0
+          "value": 1
         },
         {
           "key": "inbox_failed",
@@ -128,7 +128,7 @@
         }
       ],
       "visual": {
-        "new_inbox": 0
+        "new_inbox": 1
       }
     },
     {
@@ -151,7 +151,7 @@
             "zh": "筆記",
             "en": "Notes"
           },
-          "value": 258
+          "value": 259
         },
         {
           "key": "wiki",
