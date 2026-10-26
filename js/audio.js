@@ -117,11 +117,14 @@ export function createAudio({ reducedMotion, getVisual = () => ({}), onChange = 
   }
   const hasRoom = (n = 1) => active + n <= CONFIG.MAX_VOICES;
 
-  // ---------- iOS 靜音開關：開聲時把音訊類別切到 playback ----------
-  function unlockPlayback() {
-    try {
-      if (navigator.audioSession) { navigator.audioSession.type = 'playback'; return; }
-    } catch (e) { /* 不支援就走 <audio> 備案 */ }
+  // ---------- iOS 靜音開關：把音訊類別切到 playback ----------
+  // 兩條路同時做（iOS 26 實測只設 audioSession 不夠）：
+  //  1. navigator.audioSession.type = 'playback'（在建立 AudioContext 之前設）
+  //  2. 播一段程式產生的無聲 WAV（<audio loop playsinline>），只能在使用者手勢裡呼叫
+  function setAudioSession() {
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* 不支援就略過 */ }
+  }
+  function playSilent() {
     if (!silentEl) {
       silentEl = document.createElement('audio');
       silentEl.setAttribute('playsinline', '');
@@ -132,6 +135,10 @@ export function createAudio({ reducedMotion, getVisual = () => ({}), onChange = 
     const p = silentEl.play();
     if (p && p.catch) p.catch(() => {});
   }
+  function unlockPlayback() {
+    setAudioSession();
+    playSilent();
+  }
   function releasePlayback() {
     if (silentEl) silentEl.pause();
   }
@@ -141,7 +148,9 @@ export function createAudio({ reducedMotion, getVisual = () => ({}), onChange = 
     if (ctx) return true;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return false;
+    setAudioSession();
     ctx = new AC();
+    ctx.onstatechange = onStateChange;
     master = ctx.createGain();
     master.gain.value = 0;
     master.connect(ctx.destination);
@@ -201,6 +210,14 @@ export function createAudio({ reducedMotion, getVisual = () => ({}), onChange = 
     noiseBuf = makePinkNoise(2);
 
     if (debug) {
+      const tag = document.createElement('div');
+      tag.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;padding:4px 8px;border-radius:6px;background:rgba(0,0,0,.7);color:#fff;font:11px/1.4 monospace;pointer-events:none;white-space:pre';
+      document.body.appendChild(tag);
+      setInterval(() => {
+        const as = navigator.audioSession ? navigator.audioSession.type : '無';
+        const se = silentEl ? (silentEl.paused ? '停' : `播 ${silentEl.currentTime.toFixed(1)}s`) : '無';
+        tag.textContent = `audioSession:${as}  ctx:${ctx.state}  無聲音訊:${se}\n開關:${playing ? '開' : '關'}  節點:${active}  hidden:${document.hidden}`;
+      }, 500);
       window.__audio = {
         get ctx() { return ctx; },
         get master() { return master; },
@@ -655,6 +672,33 @@ export function createAudio({ reducedMotion, getVisual = () => ({}), onChange = 
     }
   }
 
+  // ---------- 恢復：iOS 切回前景後 AudioContext 常卡在 interrupted，resume 要靠下一次手勢 ----------
+  function restartTick() {
+    tick();
+    clearInterval(tickTimer);
+    tickTimer = setInterval(tick, 500);
+  }
+  function tryResume() {
+    if (!ctx || !playing) return;
+    const p = ctx.resume();
+    if (p && p.catch) p.catch(() => {});
+    playSilent();
+    setTimeout(() => {
+      if (!playing || document.hidden) return;
+      if (ctx.state === 'running') restartTick();
+      else armAutoStart();                 // 沒跑起來 → 等使用者下一次點畫面
+    }, 600);
+  }
+  function onStateChange() {
+    if (!ctx || !playing) return;
+    if (ctx.state === 'running') {
+      restartTick();
+      if (armAutoStart.cleanup) armAutoStart.cleanup();
+    } else if (!document.hidden) {
+      armAutoStart();                      // 被來電、Siri、切 App 中斷
+    }
+  }
+
   // ---------- 開關 ----------
   function fadeMaster(to) {
     const now = ctx.currentTime;
@@ -664,16 +708,15 @@ export function createAudio({ reducedMotion, getVisual = () => ({}), onChange = 
   }
 
   function start() {
+    setAudioSession();
     if (!ensureContext()) return false;
-    unlockPlayback();                    // 手勢內同步呼叫
+    playSilent();                        // 手勢內同步呼叫
     clearTimeout(suspendTimer);
     const p = ctx.resume();
     if (p && p.catch) p.catch(() => {});
     startOcean();
     playing = true;
-    tick();
-    clearInterval(tickTimer);
-    tickTimer = setInterval(tick, 500);
+    restartTick();
     fadeMaster(1);
     setPad(chordIdx);
     scheduleNextPhrase(rand(...CONFIG.FIRST_PHRASE_S));
@@ -701,7 +744,7 @@ export function createAudio({ reducedMotion, getVisual = () => ({}), onChange = 
       if (e.target && e.target.closest && e.target.closest('.audio-btn')) return;
       cleanup();
       if (!playing && start()) onChange(true);
-      else if (playing && ctx) { ctx.resume().catch(() => {}); unlockPlayback(); }
+      else if (playing && ctx) { unlockPlayback(); const p = ctx.resume(); if (p && p.catch) p.catch(() => {}); restartTick(); }
     };
     const cleanup = () => {
       document.removeEventListener('click', handler, true);
@@ -711,6 +754,7 @@ export function createAudio({ reducedMotion, getVisual = () => ({}), onChange = 
     document.addEventListener('touchend', handler, true);
     armAutoStart.cleanup = cleanup;
   }
+  armAutoStart.cleanup = null;
   if (readStored()) armAutoStart();
 
   // ---------- 分頁切到背景暫停，回來恢復 ----------
@@ -721,12 +765,7 @@ export function createAudio({ reducedMotion, getVisual = () => ({}), onChange = 
       ctx.suspend();
       releasePlayback();
     } else {
-      ctx.resume().then(() => {
-        tick();
-        clearInterval(tickTimer);
-        tickTimer = setInterval(tick, 500);
-        if (silentEl) silentEl.play().catch(() => {});
-      }).catch(() => armAutoStart());
+      tryResume();
     }
   });
 
@@ -746,6 +785,14 @@ export function createAudio({ reducedMotion, getVisual = () => ({}), onChange = 
     // 切換開關；回傳切換後是否出聲
     toggle() {
       if (armAutoStart.cleanup) armAutoStart.cleanup();
+      if (playing && ctx && ctx.state !== 'running') {   // 卡住了（iOS 切回來）→ 這一下是恢復
+        unlockPlayback();
+        const p = ctx.resume();
+        if (p && p.catch) p.catch(() => {});
+        restartTick();
+        onChange(true);
+        return true;
+      }
       if (playing) {
         sfx('off');
         stop();
