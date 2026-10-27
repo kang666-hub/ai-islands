@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-10-27T01:07:00+08:00",
+  "updatedAt": "2026-10-27T10:07:05+08:00",
   "islands": [
     {
       "id": "brand",
@@ -72,7 +72,7 @@
             "zh": "工作階段",
             "en": "Sessions"
           },
-          "value": 87
+          "value": 88
         },
         {
           "key": "jobs_total",
@@ -151,7 +151,7 @@
             "zh": "筆記",
             "en": "Notes"
           },
-          "value": 259
+          "value": 262
         },
         {
           "key": "wiki",
@@ -159,7 +159,7 @@
             "zh": "wiki 條目",
             "en": "Wiki entries"
           },
-          "value": 58
+          "value": 60
         },
         {
           "key": "raw",
@@ -167,7 +167,7 @@
             "zh": "原始資料",
             "en": "Raw sources"
           },
-          "value": 187
+          "value": 188
         }
       ],
       "visual": {}
