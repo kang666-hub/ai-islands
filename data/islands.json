@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-10-30T00:07:05+08:00",
+  "updatedAt": "2026-10-30T08:07:05+08:00",
   "islands": [
     {
       "id": "brand",
@@ -107,7 +107,7 @@
             "zh": "24 小時收件",
             "en": "Inbox (24h)"
           },
-          "value": 1
+          "value": 0
         },
         {
           "key": "inbox_failed",
@@ -128,7 +128,7 @@
         }
       ],
       "visual": {
-        "new_inbox": 1
+        "new_inbox": 0
       }
     },
     {
