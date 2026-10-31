@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-10-31T07:07:05+08:00",
+  "updatedAt": "2026-10-31T11:07:05+08:00",
   "islands": [
     {
       "id": "brand",
@@ -64,7 +64,7 @@
             "zh": "執行中",
             "en": "Running"
           },
-          "value": 8
+          "value": 7
         },
         {
           "key": "sessions_total",
@@ -84,7 +84,7 @@
         }
       ],
       "visual": {
-        "running_sessions": 8
+        "running_sessions": 7
       }
     },
     {
