@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-10-31T11:07:05+08:00",
+  "updatedAt": "2026-10-31T13:07:05+08:00",
   "islands": [
     {
       "id": "brand",
@@ -151,7 +151,7 @@
             "zh": "筆記",
             "en": "Notes"
           },
-          "value": 274
+          "value": 275
         },
         {
           "key": "wiki",
@@ -167,7 +167,7 @@
             "zh": "原始資料",
             "en": "Raw sources"
           },
-          "value": 195
+          "value": 196
         }
       ],
       "visual": {}
