@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-11-01T23:07:00+08:00",
+  "updatedAt": "2026-11-02T02:07:01+08:00",
   "islands": [
     {
       "id": "brand",
@@ -72,7 +72,7 @@
             "zh": "工作階段",
             "en": "Sessions"
           },
-          "value": 142
+          "value": 143
         },
         {
           "key": "jobs_total",
