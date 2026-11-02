@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-11-02T10:07:02+08:00",
+  "updatedAt": "2026-11-02T11:07:01+08:00",
   "islands": [
     {
       "id": "brand",
@@ -80,7 +80,7 @@
             "zh": "派工件數",
             "en": "Jobs"
           },
-          "value": 168
+          "value": 187
         }
       ],
       "visual": {
