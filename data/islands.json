@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "updatedAt": "2026-11-02T02:07:01+08:00",
+  "updatedAt": "2026-11-02T09:07:00+08:00",
   "islands": [
     {
       "id": "brand",
@@ -80,7 +80,7 @@
             "zh": "派工件數",
             "en": "Jobs"
           },
-          "value": 141
+          "value": 142
         }
       ],
       "visual": {
@@ -151,7 +151,7 @@
             "zh": "筆記",
             "en": "Notes"
           },
-          "value": 278
+          "value": 279
         },
         {
           "key": "wiki",
@@ -167,7 +167,7 @@
             "zh": "原始資料",
             "en": "Raw sources"
           },
-          "value": 197
+          "value": 198
         }
       ],
       "visual": {}
